@@ -52,13 +52,9 @@ unsigned int Starting_Address, Phys_Addr;
 unsigned int Records_Start; // Lowest address of the records
 unsigned int Max_Length = 0;
 unsigned int Minimum_Block_Size = 0x1000; // 4096 byte
-unsigned int Floor_Address = 0x0;  
-unsigned int Ceiling_Address = 0xFFFFFFFF; 
 int Module;
 bool Minimum_Block_Size_Setted = false;
 bool Starting_Address_Setted = false;
-bool Floor_Address_Setted = false;
-bool Ceiling_Address_Setted = false;
 bool Max_Length_Setted = false;
 bool Swap_Wordwise = false;
 bool Address_Alignment_Word = false;
@@ -110,8 +106,6 @@ void usage(void)
              "                Specifying this starting address will put pad bytes in the\n"
              "                binary file so that the data supposed to be stored at 0100\n"
              "                will start at the same address in the binary file.\n"
-             "  -t [address]  Floor address in hex (hex2bin only)\n"
-             "  -T [address]  Ceiling address in hex (hex2bin only)\n"
              "  -v            Verbose messages for debugging purposes\n"
              "  -w            Swap wordwise (low <-> high)\n\n",
              Pgm_Name,Pad_Byte);
@@ -291,22 +285,26 @@ void GetExtension(const char *str,char *ext)
 void PutExtension(char *Flnm, char *Extension)
 {
     char        *Period;        /* location of period in file name */
+    bool     Samename;
 
     /* This assumes DOS like file names */
     /* Don't use strchr(): consider the following filename:
      ../my.dir/file.hex
     */
     if ((Period = strrchr(Flnm,'.')) != NULL)
-    {
         *(Period) = '\0';
-        if (strcmp(Extension, Period+1) == 0)
-        {
-            fprintf (stderr,"Input and output filenames (%s) are the same.\n", Flnm);
-            exit(1);
-        }
-    }
+
+    Samename = false;
+    if (strcmp(Extension, Period+1) == 0)
+        Samename = true;
+
     strcat(Flnm,".");
     strcat(Flnm, Extension);
+    if (Samename)
+    {
+        fprintf (stderr,"Input and output filenames (%s) are the same.", Flnm);
+        exit(1);
+    }
 }
 
 void VerifyChecksumValue(void)
@@ -317,16 +315,6 @@ void VerifyChecksumValue(void)
 			Record_Nb, (256 - Checksum) & 0xFF);
 		Status_Checksum_Error = true;
 	}
-}
-
-/* Check if are set Floor and Ceiling Address and range is coherent*/
-void VerifyRangeFloorCeil(void)
-{
-    if (Floor_Address_Setted && Ceiling_Address_Setted && (Floor_Address >= Ceiling_Address))
-    {
-        fprintf (stderr,"Floor address %08X higher than Ceiling address %08X\n",Floor_Address,Ceiling_Address);
-        exit(1);
-    }
 }
 
 void CrcParamsCheck(void)
@@ -622,12 +610,6 @@ void WriteMemory(void)
             free (Memory_Block);
             if (Max_Length_Setted==true)
                 fprintf(stdout,"Attention Max Length changed by Minimum Block Size\n");
-            // extended 
-            Max_Length += Module;
-            Highest_Address += Module;
-            fprintf(stdout,"Extended\nHighest address:  %08X\n",Highest_Address);
-            fprintf(stdout,"Max Length:       %u\n\n",Max_Length);
-
         }
     }
 }
@@ -805,16 +787,6 @@ char *p;
             case 'v':
                 Verbose_Flag = true;
                 i = 0;
-                break;
-      		case 't':
-                Floor_Address = GetHex(argv[Param + 1]);
-                Floor_Address_Setted = true;
-                i = 1; /* add 1 to Param */
-                break;
-            case 'T':
-                Ceiling_Address = GetHex(argv[Param + 1]);
-                Ceiling_Address_Setted = true;
-                i = 1; /* add 1 to Param */
                 break;
             case 'w':
                 Swap_Wordwise = true;

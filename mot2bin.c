@@ -51,7 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #define PROGRAM "mot2bin"
-#define VERSION "2.5"
+#define VERSION "2.4"
 
 #include "common.h"
 

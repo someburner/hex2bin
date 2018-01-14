@@ -49,13 +49,13 @@
   20150116 Richard Genoud (Paratronic): correct buffer overflows/wrong results with the -l flag
   20150122 JP: added support for different check methods
   20150221 JP: rewrite of the checksum write/force value
+  20150725 Simone Fratini: added option for word sized hex files
   20150804 JP: added batch file option
   20160923 JP: added code for checking filename length
-  20170418 Simone Fratini: added option -t and -T to obtain shorter binary files
 */
 
 #define PROGRAM "hex2bin"
-#define VERSION "2.5"
+#define VERSION "2.4"
 
 #include "common.h"
 
@@ -132,10 +132,7 @@ int main (int argc, char *argv[])
     Record_Nb = 0;    // Used for reporting errors
     First_Word = 0;
 
-    /* Check if are set Floor and Ceiling Address and range is coherent*/
-    VerifyRangeFloorCeil();
-
-    /* get highest and lowest addresses so that we can allocate the rintervallo incoerenteight size */
+    /* get highest and lowest addresses so that we can allocate the right size */
     do
     {
         unsigned int i;
@@ -184,15 +181,6 @@ int main (int argc, char *argv[])
 
                 if (Verbose_Flag) fprintf(stderr,"Physical Address: %08X\n",Phys_Addr);
 
-                /* Floor address */
-                if (Floor_Address_Setted)
-                {
-                    /* Discard if lower than Floor_Address */
-                  if (Phys_Addr < (Floor_Address - Starting_Address)) {
-                    if (Verbose_Flag) fprintf(stderr,"Discard physical address less than %08X\n",Floor_Address - Starting_Address);
-                    break; 
-                  }
-                }
                 /* Set the lowest address as base pointer. */
                 if (Phys_Addr < Lowest_Address)
                     Lowest_Address = Phys_Addr;
@@ -200,20 +188,12 @@ int main (int argc, char *argv[])
                 /* Same for the top address. */
                 temp = Phys_Addr + Nb_Bytes -1;
 
-                /*Ceiling address */
-                if (Ceiling_Address_Setted)
-                {
-                    /* Discard if higher than Ceiling_Address */
-                    if (temp  > (Ceiling_Address +  Starting_Address)) {
-                      if (Verbose_Flag) fprintf(stderr,"Discard physical address more than %08X\n",Ceiling_Address + Starting_Address);
-                      break;
-                    }
-                }
                 if (temp > Highest_Address)
+                {
                     Highest_Address = temp;
                     if (Verbose_Flag) fprintf(stderr,"Highest_Address: %08X\n",Highest_Address);
+                }
                 break;
-
 
             case 1:
                 if (Verbose_Flag) fprintf(stderr,"End of File record\n");

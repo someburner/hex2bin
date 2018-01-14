@@ -99,13 +99,9 @@ unsigned int Starting_Address, Phys_Addr;
 unsigned int Records_Start; // Lowest address of the records
 unsigned int Max_Length;
 unsigned int Minimum_Block_Size;
-unsigned int Ceiling_Address;
-unsigned int Floor_Address;
 int Module;
 bool Minimum_Block_Size_Setted;
 bool Starting_Address_Setted;
-bool Floor_Address_Setted;
-bool Ceiling_Address_Setted;
 bool Max_Length_Setted;
 bool Swap_Wordwise;
 bool Address_Alignment_Word;
@@ -125,7 +121,6 @@ bool Crc_RefIn;
 bool Crc_RefOut;
 
 void VerifyChecksumValue(void);
-void VerifyRangeFloorCeil(void);
 void CrcParamsCheck(void);
 void WriteMemBlock16(uint16_t Value);
 void WriteMemBlock32(uint32_t Value);
