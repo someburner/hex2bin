@@ -53,10 +53,10 @@ install:
 
 cleanbuild:
 	rm -f *.o
-	rm -f hex2bin.1
 
 clean: cleanbuild
 	rm -f core hex2bin mot2bin
+	rm -f hex2bin.1
 
 
 ### end
